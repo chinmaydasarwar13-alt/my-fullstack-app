@@ -1,4 +1,4 @@
-# This workflow uses a single job and the 'working-directory' keyword for reliability.
+# This workflow includes a debugging step to list all files.
 
 name: Node.js and React CI
 
@@ -13,41 +13,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checks out the repository using a specific, stable version (v3)
+      # 1. Checks out the repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # Fetches all history to prevent git-related errors
           fetch-depth: 0
 
-      # 2. Sets up Node.js environment
+      # 2. DEBUGGING STEP: List all files
+      # This will show the exact folder structure in the logs.
+      - name: List files in the repository
+        run: ls -R
+
+      # 3. Sets up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
 
-      # 3. Install backend dependencies
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: ./server
+      # 4. Install and test backend
+      - name: Install and test backend
+        run: |
+          cd server
+          npm install
+          npm test
 
-      # 4. Run backend tests
-      - name: Test backend
-        run: npm test
-        working-directory: ./server
-
-      # 5. Install frontend dependencies
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: ./client
-
-      # 6. Run frontend tests
-      - name: Test frontend
-        run: npm test
-        working-directory: ./client
-
-      # 7. Build frontend
-      - name: Build frontend
-        run: npm run build
-        working-directory: ./client
+      # 5. Install, test, and build frontend
+      - name: Install, test, and build frontend
+        run: |
+          cd client
+          npm install
+          npm test
+          npm run build
 
