@@ -1,4 +1,4 @@
-# This workflow uses a single job to avoid path and caching issues.
+# This workflow uses a single job and an older, stable version of the checkout action.
 
 name: Node.js and React CI
 
@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checks out the repository code
+      # 1. Checks out the repository using a specific, stable version (v3)
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           # Fetches all history to prevent git-related errors
           fetch-depth: 0
@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-          # Caching is removed to fix the "paths not resolved" error
 
       # 3. Install backend dependencies and run tests
       - name: Install and test backend
