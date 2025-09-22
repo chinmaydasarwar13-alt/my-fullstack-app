@@ -1,4 +1,6 @@
-# .github/workflows/ci.yml
+# This is a corrected CI workflow for a Node.js backend and React.js frontend.
+# It will run on every push and pull request to the 'main' branch.
+
 name: Node.js and React CI
 
 on:
@@ -9,15 +11,20 @@ on:
 
 jobs:
   build-and-test:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
 
     steps:
+    # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # 2. Sets up the specified version of Node.js
+    # This step now correctly references the matrix variable.
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
@@ -25,13 +32,15 @@ jobs:
         cache: 'npm'
         cache-dependency-path: '**/package-lock.json'
 
-    - name: Install server dependencies and test
+    # 3. Install server dependencies and run tests
+    - name: Install and test server
       run: |
         cd server
         npm install
         npm test
 
-    - name: Install client dependencies, test, and build
+    # 4. Install client dependencies, run tests, and build
+    - name: Install, test, and build client
       run: |
         cd client
         npm install
