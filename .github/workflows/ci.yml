@@ -20,20 +20,18 @@ jobs:
 
     steps:
     # 1. Checks-out your repository.
-    #    The "fetch-depth: 0" line is the fix. It tells the action to
-    #    download the full repository history, which resolves the git error.
+    #    The "fetch-depth: 0" line helps prevent shallow clone errors.
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    # 2. Sets up the specified version of Node.js
-    #    Removed cache-dependency-path to resolve potential caching errors.
+    # 2. Sets up the specified version of Node.js.
+    #    The "cache: 'npm'" line was removed to fix the lock file error.
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
 
     # 3. Install server dependencies and run tests
     - name: Install and test server
