@@ -1,4 +1,4 @@
-# This workflow uses a single job and an older, stable version of the checkout action.
+# This workflow uses a single job and the 'working-directory' keyword for reliability.
 
 name: Node.js and React CI
 
@@ -26,18 +26,28 @@ jobs:
         with:
           node-version: '18.x'
 
-      # 3. Install backend dependencies and run tests
-      - name: Install and test backend
-        run: |
-          cd server
-          npm install
-          npm test
+      # 3. Install backend dependencies
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./server
 
-      # 4. Install frontend dependencies, test, and build
-      - name: Install, test, and build frontend
-        run: |
-          cd client
-          npm install
-          npm test
-          npm run build
+      # 4. Run backend tests
+      - name: Test backend
+        run: npm test
+        working-directory: ./server
+
+      # 5. Install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./client
+
+      # 6. Run frontend tests
+      - name: Test frontend
+        run: npm test
+        working-directory: ./client
+
+      # 7. Build frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./client
 
