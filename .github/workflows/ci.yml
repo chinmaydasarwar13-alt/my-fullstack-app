@@ -1,5 +1,4 @@
-# This is a corrected CI workflow for a Node.js backend and React.js frontend.
-# It will run on every push and pull request to the 'main' branch.
+# This workflow is restructured into two separate jobs for reliability.
 
 name: Node.js and React CI
 
@@ -10,41 +9,59 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
-    # The type of runner that the job will run on
+  # Job 1: Build and test the Node.js backend
+  backend:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
+    # Sets the default directory for all 'run' steps in this job
+    defaults:
+      run:
+        working-directory: ./server
     steps:
-    # 1. Checks-out your repository.
-    #    The "fetch-depth: 0" line helps prevent shallow clone errors.
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    # 2. Sets up the specified version of Node.js.
-    #    The "cache: 'npm'" line was removed to fix the lock file error.
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          # Explicitly set the path for caching
+          cache-dependency-path: server/package-lock.json
 
-    # 3. Install server dependencies and run tests
-    - name: Install and test server
-      run: |
-        cd server
-        npm install
-        npm test
+      - name: Install dependencies
+        run: npm install
 
-    # 4. Install client dependencies, run tests, and build
-    - name: Install, test, and build client
-      run: |
-        cd client
-        npm install
-        npm test
-        npm run build
+      - name: Run tests
+        run: npm test
 
+  # Job 2: Build and test the React frontend
+  frontend:
+    runs-on: ubuntu-latest
+    # Sets the default directory for all 'run' steps in this job
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          # Explicitly set the path for caching
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
