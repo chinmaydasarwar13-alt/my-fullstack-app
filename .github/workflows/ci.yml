@@ -19,18 +19,21 @@ jobs:
         node-version: [18.x, 20.x]
 
     steps:
-    # 1. Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # 1. Checks-out your repository.
+    #    The "fetch-depth: 0" line is the fix. It tells the action to
+    #    download the full repository history, which resolves the git error.
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     # 2. Sets up the specified version of Node.js
-    # This step now correctly references the matrix variable.
+    #    Removed cache-dependency-path to resolve potential caching errors.
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
 
     # 3. Install server dependencies and run tests
     - name: Install and test server
@@ -46,3 +49,4 @@ jobs:
         npm install
         npm test
         npm run build
+
