@@ -1,4 +1,4 @@
-# This workflow is restructured into two separate jobs for reliability.
+# This workflow uses a single job to avoid path and caching issues.
 
 name: Node.js and React CI
 
@@ -9,59 +9,36 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # Job 1: Build and test the Node.js backend
-  backend:
+  build-and-test:
     runs-on: ubuntu-latest
-    # Sets the default directory for all 'run' steps in this job
-    defaults:
-      run:
-        working-directory: ./server
+
     steps:
+      # 1. Checks out the repository code
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          # Fetches all history to prevent git-related errors
           fetch-depth: 0
 
+      # 2. Sets up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-          cache: 'npm'
-          # Explicitly set the path for caching
-          cache-dependency-path: server/package-lock.json
+          # Caching is removed to fix the "paths not resolved" error
 
-      - name: Install dependencies
-        run: npm install
+      # 3. Install backend dependencies and run tests
+      - name: Install and test backend
+        run: |
+          cd server
+          npm install
+          npm test
 
-      - name: Run tests
-        run: npm test
+      # 4. Install frontend dependencies, test, and build
+      - name: Install, test, and build frontend
+        run: |
+          cd client
+          npm install
+          npm test
+          npm run build
 
-  # Job 2: Build and test the React frontend
-  frontend:
-    runs-on: ubuntu-latest
-    # Sets the default directory for all 'run' steps in this job
-    defaults:
-      run:
-        working-directory: ./client
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-          cache: 'npm'
-          # Explicitly set the path for caching
-          cache-dependency-path: client/package-lock.json
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build application
-        run: npm run build
